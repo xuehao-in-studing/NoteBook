@@ -121,7 +121,8 @@
 可以通过以下的这张图进行理解
 一、本来是驾驶员对象与车对象进行强依赖关系，如果改变驾驶员与车的关系，需要改变内部的类的声明以及引用逻辑。  
 二、采用右图的接口之后，驾驶员对象与车对象没有了强依赖，转而改变成了两个接口之间的依赖关系，驾驶员与车对象之间可以来回切换。
-![image](https://github.com/xuehao-in-studing/c_sharp_learn/assets/102791379/1dec1045-814e-44bc-b891-3243144ea339)
+![image](https://github.com/xuehao-in-studing/c_sharp_learn/assets/102791379/72bef90f-24fe-43dc-a8bc-263543d339c2)
+
 
 
 
