@@ -1,4 +1,4 @@
-# 一、c#基本知识  
+![image](https://github.com/xuehao-in-studing/c_sharp_learn/assets/102791379/c291d5cf-f2c2-4d80-8b8b-bf32ba7288f8)# 一、c#基本知识  
 
 ## 一、变量和类型  
 ### 1.1 基本数据类型
@@ -138,21 +138,23 @@
 1. 事件源(source)
 2. 事件成员(event),一般来说是属于事件源的
 3. 事件订阅者(subscriber)
-4. 事件处理器(hanlder)，一般来说，就是对象的方法，来处理事件
+4. 事件处理器(hanlder)，一般来说，就是对象的方法，来处理事件,包含了事件触发逻辑
 5. 事件订阅
-6. 事件触发(逻辑)
 可以从一个简单的例子来描述，就拿狗发疯后它周边的人会跑这个事件来说，狗就是事件源，人就是事件订阅者，发生的事件就是狗叫人跑，但这看起来好像只有三部分，但还有一点，人必须订阅这个事件，为什么北京的狗发疯了，纽约的人不会跑，因为这个对他们没有影响，也就是说，他们没有订阅这个事件，必须北京的人会跟狗发疯这件事相关，也就是北京人订阅了狗发疯。
 
 ### 4.2 如何定义一个事件
 c#语法中事件是委托的一种，定义事件必须通过委托定义。  
-1. 首先定义事件委托类型(实际也是一个类)，语法如下：delete type ***EventHandler;
-2. 定义事件委托参数(实际是一个类)，语法：
-3. 定义事件发布者(类) 语法：修饰符 class PublisherName;
-4. 定义事件对象(在事件发布者内部)  语法：event ***EventHandler EventHandlerName;
-5. 定义事件处理器(是个方法,在事件订阅者内部) 
-6. 定义事件订阅者 语法： 修饰符 class SubscriberName;
-7. 定义事件逻辑
-
+1. 首先定义事件委托类型(实际也是一个类)，语法如下：delete type ***EventHandler(obj,args);  
+![image](https://github.com/xuehao-in-studing/c_sharp_learn/assets/102791379/c21bed81-479f-4571-95ed-3e1d5111e459)
+2. 定义事件委托参数(实际是一个类)，语法：修饰符 class ***eventargs:EventArgs;  
+ ![image](https://github.com/xuehao-in-studing/c_sharp_learn/assets/102791379/42021de0-73c7-4551-aeae-83c343179e85)
+3. 定义事件发布者(类) 语法：修饰符 class PublisherName;  
+4. 定义事件成员(在事件发布者内部)  语法：event ***EventHandler EventHandlerName{add;remove}(详细声明);
+5. 定义事件处理器(是个方法,在事件订阅者内部)
+ ![image](https://github.com/xuehao-in-studing/c_sharp_learn/assets/102791379/6e1214b5-0ffe-49bb-be94-6d4f13705133)
+7. 定义事件订阅者 语法： 修饰符 class SubscriberName;
+8. 定义事件逻辑  
+![image](https://github.com/xuehao-in-studing/c_sharp_learn/assets/102791379/dc0a3890-44fd-40e4-9cc8-4f877d582aac)
 
 
 
