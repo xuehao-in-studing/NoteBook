@@ -2,7 +2,7 @@
  * @Author: Jeason 19938943480@163.com
  * @Date: 2023-08-02 09:55:49
  * @LastEditors: Jeason 19938943480@163.com
- * @LastEditTime: 2023-08-02 09:56:05
+ * @LastEditTime: 2023-08-02 12:30:02
  * @FilePath: \undefinedc:\Users\User\Desktop\NoteBook\Thread.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -82,7 +82,7 @@ c#中使用使用 Thread.IsBackground设置线程是否为后台线程。
 注2：线程的使用涉及到栈，start相当于开了一个分支栈去调用方法，main则是在主栈。详见[这里](https://blog.csdn.net/qq_44715943/article/details/116714584?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522168760936816800215066542%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=168760936816800215066542&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-116714584-null-null.142^v88^control,239^v2^insert_chatgpt&utm_term=%E7%BA%BF%E7%A8%8B&spm=1018.2226.3001.4187)  
 
 
-## 2.4 多线程冲突
+## 2.4 竞争条件
 线程的冲突：当一个共享变量已经在线程内部发生了改变，但还没有写入寄存器，在写入寄存器之前，另外一个线程就对该共享变量进行调用，那么调用到的变量还是没有改变之前的变量，那么会造成变量的错误调用与修改，这种现象也叫做竞争条件。  
 
 **互斥：**  
