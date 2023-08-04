@@ -7,6 +7,16 @@
 段落二  
 [超链接](https://www.baidu.com/)
 
+| 表格	| 表格| 
+|:----|:----|
+| boolean	| java.lang.Boolean| 
+| byte	| java.lang.Byte| 
+| short	| java.lang.Short| 
+| int	| java.lang.Integer| 
+| long	| java.lang.Long| 
+| float	| java.lang.Float| 
+| double	| java.lang.Double| 
+| char	| java.lang.Character| 
 ## 二级标题
 行一  
 行二  
