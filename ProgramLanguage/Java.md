@@ -287,17 +287,18 @@ java的线程库`Thread`
 1. `new`构造的时候可以选择传入task参数，也可以选择不传入
 2. `start`  
 
+可以通过lambda表达式来传入task，也可以直接传入具体的委托参数。
 例如`Thread t = new Thread(() -> {System.out.println("start new thread!");});t.start();`  
 
 线程的启用必须调用start方法，start会自动调用run方法，run方法由JVM调用，何时调用我们并不清楚，由CPU执行。
 
 ## 7.2 线程状态
-- New：新创建的线程，尚未执行；
-- Runnable：运行中的线程，正在执行run()方法的Java代码；
-- Blocked：运行中的线程，因为某些操作被阻塞而挂起；
-- Waiting：运行中的线程，因为某些操作在等待中；
-- Timed Waiting：运行中的线程，因为执行sleep()方法正在计时等待；
-- Terminated：线程已终止，因为run()方法执行完毕。
+- `New`：新创建的线程，尚未执行；
+- `Runnable`：运行中的线程，正在执行run()方法的Java代码；
+- `Blocked`：运行中的线程，因为某些操作被阻塞而挂起；
+- `Waiting`：运行中的线程，因为某些操作在等待中；
+- `Timed Waiting`：运行中的线程，因为执行sleep()方法正在计时等待；
+- `Terminated`：线程已终止，因为run()方法执行完毕。
 
 ## 7.3 线程优先级
 java线程可以设定优先级，设定方法`Thread.setPriority(int n) // 1~10, 默认值5`。  
@@ -307,6 +308,13 @@ java线程可以设定优先级，设定方法`Thread.setPriority(int n) // 1~10
 ## 7.4 中断线程
 调用`interrupt()`方法  
 线程可以被中断，但推荐使用不？？？？  
+
+### 7.4.1 volatile
+作用：  
+1. 可见性：当一个变量被声明为 volatile 时，它保证了所有线程对该变量的读取和写入操作都是可见的。也就是说，当一个线程修改了该变量的值，其他线程可以立即看到最新的值，而不会使用缓存中的旧值。这样可以确保多个线程之间对变量的操作具有一致的可见性，避免了数据不一致的问题。  
+2. 禁止指令重排序：volatile 关键字还可以防止编译器和处理器对指令进行重排序优化。在多线程环境下，指令重排序可能会导致代码的执行顺序与预期不符，引发错误或异常。通过将变量声明为 volatile，可以禁止编译器和处理器对该变量操作的重排序，从而确保指令执行顺序的正确性。  
+
+在多线程中的用处：  
 
 线程中可以使用`volatile`关键字，使得线程之间的变量可以共享。该声明使得变量被线程修改后立马写入到主存当中，线程读取变量的时候也从主存读取，而非缓存。
 
@@ -326,7 +334,7 @@ java线程可以设定优先级，设定方法`Thread.setPriority(int n) // 1~10
 2. 选择共享示例作为锁对象
 3. 使用`synchronized(lockObject) { ... }`  
 
-不需要锁的操作：原子操作  
+不需要锁的操作：**原子操作**  
 - 基本类型(long和doubel除外)的赋值
 - 引用类型的赋值  
 
@@ -335,6 +343,7 @@ java线程可以设定优先级，设定方法`Thread.setPriority(int n) // 1~10
 <div align="center">
     <img src="https://github.com/xuehao-in-studing/learngit/assets/102791379/62230e19-ad7d-4b4f-b6eb-46edb5cacf79" alt="java版本">
 </div>
+
 
 
 # 八、数据库
@@ -387,13 +396,56 @@ JDBC查询参数
 - Durability：持久性
 
 例如转账问题，不能转出方转出成功，而转入方转入失败，否则账户就会凭空减少一部分资金。  
-执行事务本质上是把多条SQL语句包裹在一个事务中执行。  
+执行事务本质上是把多条SQL语句包裹在一个事务中执行。 
+
+
+一个完整的JDBC事务代码：
+<code>
+Connection conn = openConnection();
+try {
+    // 关闭自动提交:
+    conn.setAutoCommit(false);
+    // 执行多条SQL语句:
+    insert(); update(); delete();
+    // 提交事务:
+    conn.commit();
+} catch (SQLException e) {
+    // try执行失败后回滚事务:
+    conn.rollback();
+} finally {
+    conn.setAutoCommit(true);
+    conn.close();
+}
+</code>  
+
+如果要设定事务的隔离级别，可以使用如下代码：  
+`conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);`
+
 
 ## 8.5 Batch
 在批量插入或者更新代码中，为了减少频繁的SQL访问，需要进行`batch`处理。  
 - `for`循环依次添加参数
 - `addBatch()`将参数都添加到batch中
-- `executeBatch`执行batch
+- `executeBatch`执行batch  
+
+数据库插入多行程序示例：  
+![Alt text](image-1.png)
+
+## 8.6 JDBC连接池
+和线程的创建销毁一样，数据库的连接和销毁同样是一个耗费时间和资源的工作，因此出现了JDBC连接池，用来存放被释放后的数据库链接。  
+
+JDBC标准接口:`javax.sql.DataSource`。  
+最广泛使用的包：HikariCP。  
+添加依赖项:`com.zaxxer:HikariCP:2.7.1`   
+
+程序内如何调用？  
+1. `HikariConfig config = new HikariConfig();`实例化配置
+2. `config.setJdbcUrl`设置一些超参数，如url，password，maxConnection等
+3. `DataSource ds = new HikariDataSource(config);` 实例化连接池
+4. `ds.getConnection`获取连接
+5. `conn.close()`关闭连接  
+
+注：当连接关闭时，并不是直接释关闭，而是释放到连接池`ds`当中，当新的连接请求发起直接调用。
 
 
 

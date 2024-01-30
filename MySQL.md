@@ -1,4 +1,12 @@
 # MySQL
+
+<style>
+    table {
+    margin-left: auto;
+    margin-right: auto;
+    }
+</style>
+
 `mysql`是一种典型的关系型数据库，什么是关系型数据库？  
 就是可以通过A表的外键来关联到B表的主键，从而获取B表中的数据。也即多个表可以通过键来建立联系。  
 
@@ -101,13 +109,6 @@
 
 # 四、管理MySQL
 ## 4.1 SQL命令
-<style>
-    table {
-    margin-left: auto;
-    margin-right: auto;
-    }
-</style>
-
 |   命令    |   作用    |  
 |:-----:|:-----:|  
 |mysql -u root -p|登录SQL| 
@@ -136,3 +137,75 @@
 语句：
 `INSERT INTO students (id, class_id, name, gender, score) VALUES (1, 1, '小明', 'F', 99) ON DUPLICATE KEY UPDATE name='小明', gender='F', score=99;`  
 希望插入，如果已存在就更新。  
+
+
+# 五、事务
+在执行SQL语句的时候，某些业务要求，一系列操作必须全部执行，而不能仅执行一部分。例如，一个转账操作，必须在转出方转出后，转入方要收到，这几条语句是不可以分割的。  
+
+这种把多条语句作为一个整体进行操作的功能，被称为数据库事务。  
+
+对于单条的`SELECT`、`INSERT`、`UPDATE`等语句能够执行是因为他们开启了默认提交，也采用了默认的隔离方式。  
+
+**隔离级别**   
+
+对于**两个并发执行的事务**，如果涉及到操作同一条记录的时候，可能会发生问题。因为并发操作会带来数据的不一致性，包括脏读、不可重复读、幻读等。数据库系统提供了隔离级别来让我们有针对性地选择事务的隔离级别，避免数据不一致的问题。
+|Isolation Level|	脏读（Dirty Read）|	不可重复读（Non Repeatable Read）|	幻读（Phantom Read）|
+|:-----:|:-----:|:-----:|:-----:|
+|Read Uncommitted|Yes|Yes|Yes|
+|Read Committed	|-	|Yes|Yes|
+|Repeatable Read|-	|-|Yes|
+|Serializable|-	|-	|-|
+
+## 5.1 Read Uncommitted
+隔离级别最低的事务级别。一个事务可能会读到另一个事务更新但未提交的数据，如果另一个事务回滚，那么就会造成脏读（Dirty Read）。  
+
+例如：  
+|时刻	|事务A	|事务B|
+|:-----:|:-----:|:-----:|
+|1	|SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;	|SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;|
+|2	|BEGIN;	|BEGIN;|
+|3	|UPDATE students SET name = 'Bob' WHERE id = 1;|	|
+|4	|	|SELECT * FROM students WHERE id = 1;|
+|5	|ROLLBACK;|	|
+|6	|	|SELECT * FROM students WHERE id = 1;|
+|7	|	|COMMIT;|
+
+
+## 5.2 Read Committed
+在Read Committed隔离级别下，一个事务可能会遇到不可重复读（Non Repeatable Read）的问题。
+
+不可重复读是指，在一个事务内，多次读同一数据，在这个事务还没有结束时，如果另一个事务恰好修改了这个数据，那么，在第一个事务中，两次读取的数据就可能不一致。
+
+如下表所示：
+|时刻|	事务A|	事务B|
+|:-----:|:-----:|:-----:|
+|1	|SET TRANSACTION ISOLATION LEVEL READ COMMITTED;|	SET TRANSACTION ISOLATION LEVEL READ COMMITTED;|
+|2|	BEGIN;|	BEGIN;|
+|3|		|SELECT * FROM students WHERE id = 1; -- Alice|
+|4|	UPDATE students SET name = 'Bob' WHERE id = 1;|	|
+|5|	COMMIT;|  |
+|6|		|SELECT * FROM students WHERE id = 1; -- Bob|
+|7|		|COMMIT;|
+
+## 5.3 Repeatable Read
+在Repeatable Read隔离级别下，一个事务可能会遇到幻读（Phantom Read）的问题。  
+
+幻读是指，在一个事务中，第一次查询某条记录，发现没有，但是，当试图更新这条不存在的记录时，竟然能成功，并且，再次读取同一条记录，它就神奇地出现了。  
+
+例如：  
+|时刻|	事务A|	事务B|
+|:-----:|:-----:|:-----:|
+|1	|SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;|	SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;|
+|2	|BEGIN;|	BEGIN;|
+|3	|	|SELECT * FROM students WHERE id = 99; -- empty|
+|4	|INSERT INTO students (id, name) VALUES (99, 'Bob');|	|
+|5	|COMMIT;|	|
+|6	|	|SELECT * FROM students WHERE id = 99; -- empty|
+|7	|	|UPDATE students SET name = 'Alice' WHERE id = 99; -- 1 row affected|
+|8	|	|SELECT * FROM students WHERE id = 99; -- Alice|
+|9	|	|COMMIT;|
+
+## 5.4 Serializable
+最高的隔离级别，但是事务的进行是串行的，也就是只能在前面的事务执行完毕之后才能够执行后面的事务(类比栈)。  
+
+这样虽然安全性高，不会出现脏读、幻读等问题，但是读取时间效率低，因此一般不采用这种隔离方式
